@@ -90,12 +90,17 @@ theorem compl_and : p ∧ (¬p ∨ q) ↔ p ∧ q := by
     | inr hq => exact ⟨h.left, hq⟩
   exact ⟨h.left, Or.inr h.right⟩
  xs
-theorem de_morgan : ¬(p ∨ q) ↔ ¬p ∧ ¬q := by
-  apply Iff.intro
-  intro 
-  
+
+theorem de_morgan : ¬(p ∨ q) ↔ ¬p ∧ ¬q := by sorry 
 
 theorem impl_elim : p → q ↔ ¬p ∨ q := by
   apply Iff.intro <;>
   intro h
   by_contra h1
+  rw [de_morgan, d_neg] at h1
+  have h2 := h h1.left
+  exact h1.right h2
+  intro hp
+  cases h with
+    | inl h1 => exfalso ; exact h1 hp
+    | inr h1 => exact h1
