@@ -92,48 +92,48 @@ theorem compl_and : p ∧ (¬p ∨ q) ↔ p ∧ q := by
  xs
 
 
-theorem and_identity : a ∧ True ↔ a := by
+theorem and_identity : p ∧ True ↔ p := by
   apply Iff.intro <;>
   intro h
   exact h.left
   exact And.intro h True.intro
 
-theorem or_identity : a ∨ False ↔ a := by
+theorem or_identity : p ∨ False ↔ p := by
   apply Iff.intro <;>
   intro h
   cases h with
-    | inl ha => exact ha
+    | inl hp => exact hp
     | inr hf => exfalso ; exact hf
   exact Or.inl h
 
-theorem and_absorbtion : a ∨ True ↔ True := by
+theorem and_absorbtion : p ∨ True ↔ True := by
   apply Iff.intro <;>
   intro h
   exact True.intro
   exact Or.inr h
 
-theorem or_absorbtion : a ∧ False ↔ False := by
+theorem or_absorbtion : p ∧ False ↔ False := by
   apply Iff.intro <;>
   intro h
   exact h.right
   exfalso
   exact h
 
-theorem my_not_true : ¬ True ↔ False := by
+theorem my_not_true : ¬True ↔ False := by
   apply Iff.intro <;>
   intro h
   exact h True.intro
   exfalso
   exact h
 
-theorem my_not_false : ¬ False ↔ True := by
+theorem my_not_false : ¬False ↔ True := by
   apply Iff.intro <;>
   intro h
   exact True.intro
   rw [← my_not_true, d_neg]
   exact h
 
-theorem annulation : a ∧ ¬ a ↔ False := by
+theorem annulation : p ∧ ¬p ↔ False := by
   apply Iff.intro <;>
   intro h
   exact h.right h.left
