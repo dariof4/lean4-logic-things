@@ -17,25 +17,25 @@ theorem my_or_comm : p ∨ q ↔ q ∨ p := by
   | inl hp => exact Or.inr hp
   | inr hq => exact Or.inl hq
 
-theorem my_and_assoc : p ∧ (q ∧ r) ↔ (p ∧ q) ∧ r := by
+theorem my_and_assoc : (p ∧ q) ∧ r ↔ p ∧ (q ∧ r) := by
   apply Iff.intro <;>
   intro h
-  exact And.intro (And.intro h.left h.right.left) h.right.right
   exact And.intro h.left.left (And.intro h.left.right h.right)
+  exact And.intro (And.intro h.left h.right.left) h.right.right
 
-theorem my_or_assoc : p ∨ (q ∨ r) ↔ (p ∨ q) ∨ r := by
+theorem my_or_assoc : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) := by
   apply Iff.intro <;>
   intro h
-  cases h with
-  | inl hp => exact Or.inl (Or.inl hp)
-  | inr hqr => cases hqr with
-    | inl hq => exact Or.inl (Or.inr hq)
-    | inr hr => exact Or.inr hr
   cases h with
   | inl hpq => cases hpq with
     | inl hp => exact Or.inl hp
     | inr hq => exact Or.inr (Or.inl hq)
   | inr hr => exact (Or.inr (Or.inr hr))
+  cases h with
+  | inl hp => exact Or.inl (Or.inl hp)
+  | inr hqr => cases hqr with
+    | inl hq => exact Or.inl (Or.inr hq)
+    | inr hr => exact Or.inr hr
 
 theorem and_distrib_or : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
   apply Iff.intro <;>
@@ -89,30 +89,30 @@ theorem compl_and : p ∧ (¬p ∨ q) ↔ p ∧ q := by
     | inl hnp => by_contra ; exact hnp h.left
     | inr hq => exact ⟨h.left, hq⟩
   exact ⟨h.left, Or.inr h.right⟩
- xs
 
 
-theorem and_identity : p ∧ True ↔ p := by
+
+theorem and_identity : a ∧ True ↔ a := by
   apply Iff.intro <;>
   intro h
   exact h.left
   exact And.intro h True.intro
 
-theorem or_identity : p ∨ False ↔ p := by
+theorem or_identity : a ∨ False ↔ a := by
   apply Iff.intro <;>
   intro h
   cases h with
-    | inl hp => exact hp
+    | inl ha => exact ha
     | inr hf => exfalso ; exact hf
   exact Or.inl h
 
-theorem and_absorbtion : p ∨ True ↔ True := by
+theorem or_absorbtion : p ∨ True ↔ True := by
   apply Iff.intro <;>
   intro h
   exact True.intro
   exact Or.inr h
 
-theorem or_absorbtion : p ∧ False ↔ False := by
+theorem and_absorbtion : p ∧ False ↔ False := by
   apply Iff.intro <;>
   intro h
   exact h.right
@@ -140,16 +140,19 @@ theorem annulation : p ∧ ¬p ↔ False := by
   exfalso
   exact h
 
-theorem de_morgan : ¬(p ∨ q) ↔ ¬p ∧ ¬q := by sorry 
-
-theorem impl_elim : p → q ↔ ¬p ∨ q := by
+theorem excluded_middle : p ∨ ¬p ↔ True := by
   apply Iff.intro <;>
-  intro h
-  by_contra h1
-  rw [de_morgan, d_neg] at h1
-  have h2 := h h1.left
-  exact h1.right h2
-  intro hp
-  cases h with
-    | inl h1 => exfalso ; exact h1 hp
-    | inr h1 => exact h1
+  intro
+  exact True.intro
+  exact em p
+
+theorem and_de_morgan : ¬(p ∧ q) ↔ ¬p ∨ ¬q := by
+  rw [←@or_identity ¬(p∧q), ←@and_absorbtion q, ←@annulation p, ← my_and_assoc, ←@or_identity ((q∧p) ∧ ¬p), ←@and_absorbtion p, ←@annulation q, @my_and_comm q, ←my_and_assoc, ←and_distrib_or]
+  nth_rewrite 2 [←@d_neg (p∧q)]
+  rw [compl_or, ←@and_identity (¬(p∧q) ∨ ¬p∨¬q), ←@or_absorbtion ¬p, ←@excluded_middle q, ←@my_or_assoc ¬p, ←@compl_or (¬p) q, d_neg, @my_or_comm (¬p) (p∧q), my_or_assoc, my_or_comm, @my_or_comm (p∧q), ←or_distrib_and, my_and_comm, annulation, or_identity]
+
+theorem or_de_morgan : ¬(p ∨ q) ↔ ¬p ∧ ¬q := by
+  symm
+  rw [←@and_identity (¬p∧¬q), ←@excluded_middle (p∨q), and_distrib_or, my_and_assoc, @my_or_comm p]
+  nth_rewrite 2 [←@d_neg q]
+  rw [compl_and, @my_and_comm ¬q, ←my_and_assoc, @my_and_comm ¬p, annulation, my_and_comm, and_absorbtion, my_or_comm, or_identity, my_and_comm, ←compl_and, d_neg, my_or_assoc, or_distrib_and, excluded_middle, @and_distrib_or True, @my_and_comm True, @my_and_comm True, and_identity, and_identity, @my_or_comm p, ←my_or_assoc, excluded_middle, @my_or_comm True, or_absorbtion, and_identity]
